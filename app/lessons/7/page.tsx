@@ -4,11 +4,27 @@ import Link from "next/link"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle, HelpCircle, Volume2, Heart, Shield } from "lucide-react"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+
+// Add custom styles for animations
+const customStyles = `
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  .animate-slide-in-right {
+    animation: slide-in-right 0.5s ease-out;
+  }
+`
 
 export default function SelfCompassionLesson() {
   const [currentStep, setCurrentStep] = useState(0)
@@ -622,41 +638,114 @@ export default function SelfCompassionLesson() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-500">Progress</span>
-              <span className="text-sm font-medium">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
+      <main className="container mx-auto px-4 py-8 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 min-h-screen">
+        <style dangerouslySetInnerHTML={{ __html: customStyles }} />
+        <div className="max-w-4xl mx-auto">
+          {/* Game HUD */}
+          <div className="mb-6 bg-black/30 backdrop-blur-sm rounded-xl p-4 border border-purple-500/30">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-4">
+                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full p-2">
+                  <span className="text-black font-bold text-lg">⭐ {(currentStep + 1) * 50}</span>
+                </div>
+                <div className="bg-gradient-to-r from-green-400 to-emerald-500 rounded-full px-3 py-1">
+                  <span className="text-black font-bold">Level {Math.floor(currentStep / 2) + 1}</span>
+                </div>
+              </div>
+              <div className="text-white">
+                <span className="text-sm opacity-75">Quest Progress</span>
+                <div className="text-lg font-bold">
+                  {currentStep + 1}/{steps.length}
+                </div>
+              </div>
             </div>
-            <Progress
-              value={((currentStep + 1) / steps.length) * 100}
-              className="h-2 bg-gray-100"
-              indicatorClassName="bg-rose-500"
-            />
+
+            {/* Animated Progress Bar */}
+            <div className="relative">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-purple-200">Quest: Self-Compassion and Forgiveness</span>
+                <span className="text-sm font-medium text-white">
+                  {Math.round(((currentStep + 1) / steps.length) * 100)}%
+                </span>
+              </div>
+              <div className="h-3 bg-gray-800 rounded-full overflow-hidden border border-purple-500/50">
+                <div
+                  className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-full transition-all duration-500 ease-out relative"
+                  style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                >
+                  <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <Card className="border-gray-200 shadow-md">
-            <CardContent className="p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">{steps[currentStep].title}</h2>
-              {steps[currentStep].content}
-            </CardContent>
-          </Card>
+          {/* Game Card */}
+          <div className="relative">
+            {/* Floating particles effect */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-10 left-10 w-2 h-2 bg-purple-400 rounded-full animate-bounce opacity-60"></div>
+              <div className="absolute top-20 right-20 w-1 h-1 bg-pink-400 rounded-full animate-ping opacity-40"></div>
+              <div className="absolute bottom-20 left-1/4 w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse opacity-50"></div>
+            </div>
 
-          <div className="flex justify-between mt-6">
-            <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0}>
-              Previous
+            <Card className="border-2 border-purple-500/50 shadow-2xl bg-gradient-to-br from-gray-900/95 to-black/95 backdrop-blur-sm">
+              <CardContent className="p-8">
+                {/* Achievement Badge */}
+                {currentStep === 0 && (
+                  <div className="flex justify-center mb-6">
+                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-full p-4 animate-pulse">
+                      <span className="text-2xl">💝</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold">
+                    {currentStep + 1}
+                  </div>
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent">
+                    {steps[currentStep].title}
+                  </h2>
+                </div>
+
+                <div className="text-gray-100 space-y-4">{steps[currentStep].content}</div>
+
+                {/* Step completion indicator */}
+                {showFeedback && (
+                  <div className="mt-6 flex justify-center">
+                    <div className="bg-green-500/20 border border-green-500 rounded-full px-4 py-2 flex items-center gap-2 animate-bounce">
+                      <CheckCircle className="h-5 w-5 text-green-400" />
+                      <span className="text-green-400 font-medium">Quest Step Complete! +50 XP</span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Game Controls */}
+          <div className="flex justify-between mt-8">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+              className="bg-gray-800/50 border-gray-600 text-gray-300 hover:bg-gray-700/50 hover:text-white transition-all duration-200"
+            >
+              ← Previous Quest
             </Button>
 
             {currentStep === steps.length - 1 ? (
               <Link href="/">
-                <Button className="bg-rose-600 hover:bg-rose-700">
-                  Complete Lesson <CheckCircle className="ml-2 h-4 w-4" />
+                <Button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-8 py-3 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200">
+                  🏆 Complete Quest <CheckCircle className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             ) : (
-              <Button onClick={handleNext} className="bg-rose-600 hover:bg-rose-700">
-                Next <ArrowRight className="ml-2 h-4 w-4" />
+              <Button
+                onClick={handleNext}
+                className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold px-8 py-3 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
+              >
+                Continue Quest → <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             )}
           </div>

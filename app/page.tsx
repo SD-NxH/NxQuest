@@ -1,7 +1,11 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Heart, FlameIcon as Fire, Diamond, Trophy } from "lucide-react"
+import { useState } from "react"
+import { CheckCircle, X, Star, Zap } from "lucide-react"
 
 export default function Home() {
   return (
@@ -129,15 +133,8 @@ export default function Home() {
             href="/lessons/7"
           />
 
-          {/* Week 1 Checkpoint */}
-          <div className="relative z-10 my-4">
-            <div className="bg-amber-400 rounded-lg p-3 w-20 h-20 flex items-center justify-center transform transition-transform hover:scale-105 cursor-pointer">
-              <Trophy className="h-10 w-10 text-white" />
-            </div>
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-amber-500 text-white">WEEK 1 QUIZ</Badge>
-            </div>
-          </div>
+          {/* Week 1 Checkpoint - Interactive Quiz */}
+          <Week1Quiz />
 
           {/* Day 8 - Locked */}
           <LessonNode
@@ -387,4 +384,258 @@ function LessonNode({ title, type, icon, href, character = null }) {
 
 function FooterButton({ icon, active = false }) {
   return <button className={`p-2 rounded-full ${active ? "text-rose-500" : "text-gray-500"}`}>{icon}</button>
+}
+
+function Week1Quiz() {
+  const [isQuizOpen, setIsQuizOpen] = useState(false)
+  const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [score, setScore] = useState(0)
+  const [selectedAnswer, setSelectedAnswer] = useState(null)
+  const [showResult, setShowResult] = useState(false)
+  const [quizCompleted, setQuizCompleted] = useState(false)
+
+  const questions = [
+    {
+      day: 1,
+      question: "What brain system is primarily activated by highly palatable foods?",
+      options: ["Digestive system", "Reward system", "Nervous system", "Immune system"],
+      correct: 1,
+      vocab: "Reward System",
+    },
+    {
+      day: 2,
+      question: "Which of these is a common emotional trigger for food addiction?",
+      options: ["Happiness", "Stress", "Exercise", "Sleep"],
+      correct: 1,
+      vocab: "Emotional Triggers",
+    },
+    {
+      day: 3,
+      question: "What is emotional eating primarily used for?",
+      options: ["Nutrition", "Coping mechanism", "Social bonding", "Energy boost"],
+      correct: 1,
+      vocab: "Emotional Eating",
+    },
+    {
+      day: 4,
+      question: "What happens during the physical cycle of food addiction?",
+      options: ["Increased metabolism", "Dopamine release and cravings", "Better digestion", "Improved sleep"],
+      correct: 1,
+      vocab: "Physical Cycle",
+    },
+    {
+      day: 5,
+      question: "Mindful eating focuses on:",
+      options: ["Eating faster", "Awareness and presence", "Counting calories", "Avoiding all foods"],
+      correct: 1,
+      vocab: "Mindful Eating",
+    },
+    {
+      day: 6,
+      question: "A supportive environment includes:",
+      options: [
+        "Keeping trigger foods visible",
+        "Stocking healthy alternatives",
+        "Eating alone always",
+        "Avoiding meal planning",
+      ],
+      correct: 1,
+      vocab: "Supportive Environment",
+    },
+    {
+      day: 7,
+      question: "Self-compassion in recovery means:",
+      options: [
+        "Being harsh with yourself",
+        "Treating yourself with kindness",
+        "Giving up easily",
+        "Ignoring mistakes",
+      ],
+      correct: 1,
+      vocab: "Self-Compassion",
+    },
+  ]
+
+  const handleAnswerSelect = (answerIndex) => {
+    setSelectedAnswer(answerIndex)
+  }
+
+  const handleNextQuestion = () => {
+    if (selectedAnswer === questions[currentQuestion].correct) {
+      setScore(score + 1)
+    }
+
+    setShowResult(false)
+    setSelectedAnswer(null)
+
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1)
+    } else {
+      setQuizCompleted(true)
+    }
+  }
+
+  const resetQuiz = () => {
+    setCurrentQuestion(0)
+    setScore(0)
+    setSelectedAnswer(null)
+    setShowResult(false)
+    setQuizCompleted(false)
+    setIsQuizOpen(false)
+  }
+
+  if (!isQuizOpen) {
+    return (
+      <div className="relative z-10 my-4">
+        <div
+          className="bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg p-3 w-20 h-20 flex items-center justify-center transform transition-transform hover:scale-105 cursor-pointer shadow-lg border-2 border-amber-300"
+          onClick={() => setIsQuizOpen(true)}
+        >
+          <Trophy className="h-10 w-10 text-white animate-pulse" />
+        </div>
+        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+          <Badge className="bg-amber-500 text-white animate-bounce">WEEK 1 QUIZ</Badge>
+        </div>
+      </div>
+    )
+  }
+
+  if (quizCompleted) {
+    const percentage = Math.round((score / questions.length) * 100)
+    return (
+      <div className="relative z-10 my-8 max-w-2xl mx-auto">
+        <div className="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 rounded-xl p-6 border border-purple-500/30 text-white">
+          <div className="text-center">
+            <div className="mb-4">
+              {percentage >= 80 ? (
+                <Star className="h-16 w-16 text-yellow-400 mx-auto animate-spin" />
+              ) : percentage >= 60 ? (
+                <Trophy className="h-16 w-16 text-amber-400 mx-auto" />
+              ) : (
+                <Zap className="h-16 w-16 text-blue-400 mx-auto" />
+              )}
+            </div>
+            <h3 className="text-2xl font-bold mb-2">Quest Complete!</h3>
+            <p className="text-lg mb-4">
+              You scored {score} out of {questions.length} ({percentage}%)
+            </p>
+
+            {percentage >= 80 && (
+              <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-3 mb-4">
+                <p className="text-yellow-300 font-semibold">🏆 Master Achievement Unlocked!</p>
+                <p className="text-sm">You've mastered the fundamentals of food addiction recovery!</p>
+              </div>
+            )}
+
+            {percentage >= 60 && percentage < 80 && (
+              <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-3 mb-4">
+                <p className="text-blue-300 font-semibold">⭐ Good Progress!</p>
+                <p className="text-sm">You're on the right track. Review and try again!</p>
+              </div>
+            )}
+
+            {percentage < 60 && (
+              <div className="bg-orange-500/20 border border-orange-500/30 rounded-lg p-3 mb-4">
+                <p className="text-orange-300 font-semibold">💪 Keep Learning!</p>
+                <p className="text-sm">Review the lessons and challenge yourself again!</p>
+              </div>
+            )}
+
+            <Button
+              onClick={resetQuiz}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const question = questions[currentQuestion]
+
+  return (
+    <div className="relative z-10 my-8 max-w-2xl mx-auto">
+      <div className="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 rounded-xl p-6 border border-purple-500/30 text-white">
+        {/* Quiz Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-6 w-6 text-amber-400" />
+            <span className="font-bold">Week 1 Quiz</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm">
+              Question {currentQuestion + 1}/{questions.length}
+            </span>
+            <span className="text-sm">Score: {score}</span>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-700 rounded-full h-2 mb-6">
+          <div
+            className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+          ></div>
+        </div>
+
+        {/* Question */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Badge className="bg-purple-600">Day {question.day}</Badge>
+            <Badge variant="outline" className="border-blue-500 text-blue-300">
+              {question.vocab}
+            </Badge>
+          </div>
+          <h3 className="text-xl font-semibold mb-4">{question.question}</h3>
+
+          <div className="space-y-3">
+            {question.options.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => handleAnswerSelect(index)}
+                className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                  selectedAnswer === index
+                    ? "border-purple-400 bg-purple-500/20"
+                    : "border-gray-600 bg-gray-800/50 hover:border-gray-500"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      selectedAnswer === index ? "border-purple-400 bg-purple-500" : "border-gray-500"
+                    }`}
+                  >
+                    {selectedAnswer === index && <CheckCircle className="h-4 w-4 text-white" />}
+                  </div>
+                  <span>{option}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="flex justify-between items-center">
+          <Button
+            variant="outline"
+            onClick={() => setIsQuizOpen(false)}
+            className="border-gray-600 text-gray-300 hover:bg-gray-800"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Close Quiz
+          </Button>
+
+          <Button
+            onClick={handleNextQuestion}
+            disabled={selectedAnswer === null}
+            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50"
+          >
+            {currentQuestion === questions.length - 1 ? "Finish Quiz" : "Next Question"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
 }
